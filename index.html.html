@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Którym filozofem greckim jesteś?</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f1e8;color:#27231f}
+.wrap{max-width:620px;margin:auto;padding:24px 16px 40px}
+.card{background:white;border-radius:20px;padding:24px;box-shadow:0 4px 18px #00000012}
+h1{font-size:29px;line-height:1.1;margin:0 0 10px}.intro{line-height:1.5;color:#625b54}
+.progress{height:8px;background:#e7e1d8;border-radius:9px;margin:20px 0}.bar{height:100%;width:0;background:#6d5a45;border-radius:9px;transition:.25s}
+.q{font-size:20px;line-height:1.35;font-weight:700;margin:20px 0}
+.option{display:block;width:100%;text-align:left;border:2px solid #ddd5ca;background:#fff;border-radius:14px;padding:15px;margin:10px 0;font-size:16px;line-height:1.35;cursor:pointer}
+.option:hover,.option:focus{border-color:#6d5a45;background:#faf7f2}.hidden{display:none}
+button.next{width:100%;border:0;border-radius:14px;padding:15px;background:#6d5a45;color:#fff;font-size:17px;font-weight:700;margin-top:12px;cursor:pointer}
+.result{text-align:center}.result h2{font-size:30px;margin:10px 0}.result .emoji{font-size:58px}.result p{font-size:17px;line-height:1.55}.restart{background:#fff!important;color:#6d5a45!important;border:2px solid #6d5a45!important}
+.small{font-size:13px;color:#776f67;text-align:center;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+<div id="start">
+<h1>🏛️ Którym filozofem greckim jesteś?</h1>
+<p class="intro">Odpowiedz intuicyjnie na 10 pytań. Na końcu telefon automatycznie pokaże Twój filozoficzny typ.</p>
+<button class="next" onclick="startQuiz()">Zaczynamy!</button>
+</div>
+
+<div id="quiz" class="hidden">
+<div id="count"></div><div class="progress"><div class="bar" id="bar"></div></div>
+<div class="q" id="question"></div><div id="options"></div>
+<button class="next" id="next" onclick="nextQuestion()" disabled>Dalej</button>
+</div>
+
+<div id="result" class="hidden result">
+<div class="emoji" id="emoji"></div><h2 id="title"></h2>
+<p id="desc"></p><p id="motto"></p>
+<button class="next restart" onclick="restart()">Spróbuj jeszcze raz</button>
+</div>
+</div><div class="small">Quiz biblioteczny • nie jest testem psychologicznym</div></div>
+
+<script>
+const questions=[
+["Masz godzinę tylko dla siebie. Co wybierasz?",[
+["A","Rozmowę z kimś, kto potrafi naprawdę zainteresować mnie swoim spojrzeniem na świat."],
+["B","Czytanie, marzenie i zastanawianie się nad tym, jak mógłby wyglądać idealny świat."],
+["C","Ciekawy artykuł, dokument albo poznawanie czegoś nowego."],
+["D","Kawę, coś dobrego i święty spokój."]]],
+["Kiedy pojawia się problem, najczęściej…",[
+["A","Zadaję pytania, żeby lepiej zrozumieć sytuację."],
+["B","Zastanawiam się, jakie rozwiązanie byłoby najlepsze i najbardziej sprawiedliwe."],
+["C","Analizuję fakty i szukam logicznego rozwiązania."],
+["D","Pytam siebie: „Czy naprawdę warto się tym przejmować?”"]]],
+["Co najbardziej Cię fascynuje?",[
+["A","Ludzie i ich sposób myślenia."],["B","Idee, marzenia i to, jak powinien wyglądać idealny świat."],
+["C","To, jak działa świat i dlaczego rzeczy są takie, jakie są."],["D","To, jak żyć spokojnie i czerpać radość z codzienności."]]],
+["Które zdanie jest Ci najbliższe?",[
+["A","Najważniejsze jest zadawanie właściwych pytań."],["B","Świat można ulepszyć, jeśli mamy odpowiednie idee."],
+["C","Najpierw poznajmy fakty, potem wyciągajmy wnioski."],["D","Po co komplikować życie, skoro można żyć spokojniej?"]]],
+["Ktoś mówi: „Wszyscy tak robią”. Ty…",[
+["A","Pytam: „Ale dlaczego?”"],["B","Zastanawiam się, czy to na pewno jest właściwe."],
+["C","Sprawdzam, czy rzeczywiście wszyscy tak robią."],["D","Wzruszam ramionami. Każdy może robić po swojemu."]]],
+["Idealny wieczór?",[
+["A","Fascynująca rozmowa do późna."],["B","Film, książka albo muzyka, która daje do myślenia."],
+["C","Ciekawy podcast, dokument albo książka popularnonaukowa."],["D","Dobre jedzenie, bliscy ludzie i zero stresu."]]],
+["Co najbardziej cenisz w innych ludziach?",[
+["A","Ciekawość i umiejętność myślenia."],["B","Wyobraźnię i szlachetność."],
+["C","Rozsądek i wiedzę."],["D","Pogodę ducha i umiejętność cieszenia się życiem."]]],
+["Gdybyś mógł/mogła zmienić jedną rzecz na świecie…",[
+["A","Sprawił(a)bym, żeby ludzie częściej ze sobą rozmawiali i zadawali pytania."],
+["B","Stworzył(a)bym bardziej sprawiedliwe społeczeństwo."],["C","Zainwestował(a)bym w edukację i wiedzę."],
+["D","Sprawił(a)bym, żeby ludzie mieli mniej stresu i więcej czasu dla siebie."]]],
+["Jak podejmujesz ważne decyzje?",[
+["A","Dużo pytam i rozmawiam, zanim podejmę decyzję."],["B","Myślę o tym, co będzie najlepsze w dłuższej perspektywie."],
+["C","Zbieram informacje i analizuję wszystkie za i przeciw."],["D","Zastanawiam się, które rozwiązanie da mi najwięcej spokoju."]]],
+["Gdyby Twoje życie miało być filozofią, byłoby przede wszystkim…",[
+["A","Nieustannym poszukiwaniem prawdy."],["B","Poszukiwaniem lepszego, bardziej idealnego świata."],
+["C","Poznawaniem świata i zdobywaniem wiedzy."],["D","Sztuką dobrego, spokojnego życia."]]]
+];
+const results={
+A:["🦉","Jesteś SOKRATESEM – Poszukiwaczem prawdy","Lubisz pytać, dyskutować i dochodzić do sedna. Nie przyjmujesz wszystkiego na wiarę. Ciekawią Cię ludzie, ich poglądy i motywacje.","Twoje motto: „Zacznijmy od pytania…”"],
+B:["✨","Jesteś PLATONEM – Wizjonerem","Masz wyobraźnię i lubisz patrzeć szerzej. Interesują Cię idee, wartości i pytanie o to, jak powinien wyglądać lepszy świat.","Twoje motto: „A gdyby można było stworzyć świat idealny?”"],
+C:["🔎","Jesteś ARYSTOTELESEM – Analitykiem","Lubisz wiedzieć, jak i dlaczego coś działa. Ceniasz wiedzę, logiczne myślenie i konkretne rozwiązania. Najpierw obserwujesz, potem wyciągasz wnioski.","Twoje motto: „Sprawdźmy, jak jest naprawdę.”"],
+D:["🌿","Jesteś EPIKUREM – Mistrzem dobrego życia","Cenisz spokój, przyjaźń, przyjemności i wolność od niepotrzebnych trosk. Wiesz, że życie nie musi być nieustannym wyścigiem.","Twoje motto: „Mniej stresu, więcej życia.”"]
+};
+let i=0, scores={A:0,B:0,C:0,D:0}, selected=null;
+function startQuiz(){document.getElementById("start").classList.add("hidden");document.getElementById("quiz").classList.remove("hidden");render()}
+function render(){selected=null;document.getElementById("next").disabled=true;document.getElementById("count").textContent=`Pytanie ${i+1} z ${questions.length}`;document.getElementById("bar").style.width=((i)/questions.length*100)+"%";document.getElementById("question").textContent=questions[i][0];let o=document.getElementById("options");o.innerHTML="";questions[i][1].forEach(x=>{let b=document.createElement("button");b.className="option";b.textContent=x[1];b.onclick=()=>{selected=x[0];document.querySelectorAll(".option").forEach(y=>y.style.borderColor="#ddd5ca");b.style.borderColor="#6d5a45";document.getElementById("next").disabled=false};o.appendChild(b)})}
+function nextQuestion(){if(!selected)return;scores[selected]++;if(i<questions.length-1){i++;render()}else{showResult()}}
+function showResult(){let max=Math.max(...Object.values(scores));let winners=Object.keys(scores).filter(k=>scores[k]===max);let key=winners.includes("D")?"D":winners[0];document.getElementById("quiz").classList.add("hidden");document.getElementById("result").classList.remove("hidden");document.getElementById("bar").style.width="100%";document.getElementById("emoji").textContent=results[key][0];document.getElementById("title").textContent=results[key][1];document.getElementById("desc").textContent=results[key][2];document.getElementById("motto").textContent=results[key][3]}
+function restart(){i=0;scores={A:0,B:0,C:0,D:0};document.getElementById("result").classList.add("hidden");document.getElementById("quiz").classList.remove("hidden");render()}
+</script>
+</body></html>
